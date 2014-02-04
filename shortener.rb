@@ -35,8 +35,9 @@ end
 ###########################################################
 
 get '/' do
-    @links = [] # FIXME
-    erb :index
+  puts Link.find(:all).to_s
+  @links = Link.find :all
+  erb :index
 end
 
 get '/new' do
@@ -44,7 +45,24 @@ get '/new' do
 end
 
 post '/new' do
-    # PUT CODE HERE TO CREATE NEW SHORTENED LINKS
+  url = params[:url]
+  if !(Link.find_by_url(url)) then
+    shortURL = shortenURL
+    while(Link.find_by_code(shortURL))
+      shortURL = shortenURL
+    end
+    newLink = Link.create({:url => url, :code => shortURL})
+  end
+  # redirect :index
+end
+
+get '/:code' do
+  # link = Link.find(params[:code])
+  # redirect link.url
+end
+
+def shortenURL
+  shortURL = Random.new.rand(65..90).chr + Random.new.rand(65..90).chr
 end
 
 # MORE ROUTES GO HERE

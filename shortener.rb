@@ -28,6 +28,8 @@ end
 # http://guides.rubyonrails.org/association_basics.html
 
 class Link < ActiveRecord::Base
+  validates_uniqueness_of :url
+  validates_uniqueness_of :code
 end
 
 ###########################################################
@@ -35,7 +37,8 @@ end
 ###########################################################
 
 get '/' do
-  puts Link.find(:all).to_s
+  # Link.delete_all   
+  # puts Link.find(:all).to_s
   @links = Link.find :all
   erb :index
 end
@@ -46,18 +49,21 @@ end
 
 post '/new' do
   url = params[:url]
-  if !(Link.find_by_url(url)) then
+  shortURL = shortenURL
+  while(Link.find_by_code(shortURL))
     shortURL = shortenURL
-    while(Link.find_by_code(shortURL))
-      shortURL = shortenURL
-    end
-    newLink = Link.create({:url => url, :code => shortURL})
   end
-  # redirect :index
+  newLink = Link.create({:url => url, :code => shortURL})
 end
 
 get '/:code' do
-  # link = Link.find(params[:code])
+  link = Link.find_by_code(params[:code])
+  if link then
+    # puts link.url
+    # puts "the link's url is #{link.url}"
+    theurl = "http://#{link.url}"
+    redirect theurl
+  end
   # redirect link.url
 end
 
